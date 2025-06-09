@@ -1,0 +1,166 @@
+hich I’ll provide)
+
+✅ Step-by-Step Guide: Use Python in Android with Chaquopy
+Step 1: Install Android Studio
+Download and install it from:
+👉 https://developer.android.com/studio
+
+During setup, choose:
+
+Standard setup.
+
+Use the recommended SDK version.
+
+Step 2: Create a New Android Project
+Open Android Studio → New Project
+
+Choose “Empty Activity”
+
+Name your app (e.g., ChaquopyDemo)
+
+Language: Java (or Kotlin, but we’ll use Java for this guide)
+
+Minimum SDK: API 21 (Android 5.0) is safe
+
+Click Finish
+
+Step 3: Add Chaquopy to Your Project
+Open build.gradle (Project: ChaquopyDemo) and add this in the repositories section:
+
+groovy
+Copiar
+Editar
+maven { url "https://chaquo.com/maven" }
+Open build.gradle (Module: app) and add this at the top:
+
+groovy
+Copiar
+Editar
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'  // <--- Add this line
+}
+Inside android {} block, add:
+
+groovy
+Copiar
+Editar
+compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+}
+At the bottom of the same file, add:
+
+groovy
+Copiar
+Editar
+python {
+    // Use the built-in Python
+    buildPython "C:/path/to/python.exe"  // Optional: only if you want to use your own Python
+    pip {
+        install "numpy"  // Optional: install any Python packages you want
+    }
+}
+If you don’t specify buildPython, Chaquopy uses its own internal Python.
+
+Click Sync Now (you’ll see a yellow bar at the top).
+
+Step 4: Add a Python Script
+In the app module:
+
+Right-click → New → Directory
+
+Name it: python
+
+Inside the python directory, create a file:
+
+Name: my_script.py
+
+Content:
+
+python
+Copiar
+Editar
+def get_message():
+    return "Hello from Python!"
+Step 5: Edit Your Java Code to Use Python
+Open MainActivity.java
+
+Replace its contents with this:
+
+java
+Copiar
+Editar
+package com.example.chaquopydemo;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        TextView textView = findViewById(R.id.textView);
+        Button button = findViewById(R.id.button);
+
+        if (!Python.isStarted()) {
+            Python.start(new AndroidPlatform(this));
+        }
+
+        Python py = Python.getInstance();
+        PyObject pyObj = py.getModule("my_script");
+
+        button.setOnClickListener(v -> {
+            PyObject result = pyObj.callAttr("get_message");
+            textView.setText(result.toString());
+        });
+    }
+}
+Step 6: Update Your XML Layout (UI)
+Open res/layout/activity_main.xml
+
+Replace it with:
+
+xml
+Copiar
+Editar
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Waiting for Python..."
+        android:textSize="18sp"
+        android:padding="16dp" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Run Python Code" />
+</LinearLayout>
+Step 7: Run the App
+Connect an Android phone via USB (or use an emulator).
+
+Click the Run ▶️ button in Android Studio.
+
+Your app launches.
+
+Tap the button → You’ll see "Hello from Python!" on the screen.
+
